@@ -10,6 +10,19 @@ export class UserController extends BaseAPIController {
         }, (err) => this.handleErrorResponse(res, err))
         // }, (err) => this.handleErrorResponse(res, err))
     }
+
+    updateUser = (req, res, next) => {
+        db.users.update(req.body, { where: { id: req.body.id } }).then((response) => {
+            res.json({ status: 1, data: response })
+        }, (err) => this.handleErrorResponse(res, err))
+    }
+
+    deleteUser = (req, res, next) => {
+        db.users.destroy({ where: { id: req.params.id } }).then((response) => {
+            res.json({ status: 1, data: response })
+        }, (err) => this.handleErrorResponse(res, err))
+    }
+
 }
 
 const controller = new UserController();

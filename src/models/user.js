@@ -1,10 +1,5 @@
 export default function(sequelize, DataTypes) {
     const users = sequelize.define("users", {
-        UserID: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         Name: DataTypes.STRING,
         Description: DataTypes.STRING,
         Profile_photo_url: DataTypes.STRING,

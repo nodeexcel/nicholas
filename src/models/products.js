@@ -1,10 +1,6 @@
 export default function(sequelize, DataTypes) {
     const products = sequelize.define("products", {
-        ProductID: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
+        ProductID: DataTypes.STRING,
         Category: DataTypes.STRING,
         Subcategory: DataTypes.STRING,
         Colour1: DataTypes.STRING,
