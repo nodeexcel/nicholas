@@ -2,39 +2,53 @@ import BaseAPIController from "./BaseAPIController";
 import provideUser from "../providers/user";
 import db from '../db.js';
 import _ from "lodash";
-
+import formidable from "formidable";
+import fs from "fs";
+import csvjson from "csvjson";
+import path from "path";
 
 export class UserController extends BaseAPIController {
 
     createProducts = (req, res, next) => {
-        db.products.findAll({}).then((resp) => {
-            var test = _.map(req.body.products, (val, key) => {
-                return _.remove(resp, function(index) {
-                    return (index.ProductID == val.ProductID)
+        let form = new formidable.IncomingForm();
+        form.parse(req, function(err, fields, files) {
+            // let new_path = path.join(__dirname, files.file.name);
+            fs.readFile(files.file.path, function(err, data) {
+                var csv = data.toString('utf8')
+                var lines = csv.split("\n");
+                var result = [];
+                var headers = lines[0].split(",");
+                for (var i = 1; i < lines.length - 1; i++) {
+                    var obj = {};
+                    var currentline = lines[i].split(/,|"/);
+                    for (var j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = currentline[j] ? currentline[j] : null;
+                    }
+                    result.push(obj);
+                }
+
+                db.products.findAll({}).then((resp) => {
+                    _.map(result, (val, key) => {
+                        return _.remove(resp, function(index) {
+                            return (index.ProductID == val.ProductID)
+                        })
+                    })
+
+                })
+                _.forEach(result, (val, key) => {
+                    db.products.findOne({ where: { ProductID: val.ProductID } }).then((product) => {
+                        if (product) {
+                            db.products.update(val, { where: { ProductID: val.ProductID } }).then((data) => {})
+                        } else {
+                            db.products.create(val).then((data) => {})
+                        }
+                    })
+                    if (key == result.length - 1) {
+                        res.json({ status: 1, message: "success" })
+                    }
                 })
             })
-            // console.log(resp, "oooooooo", resp.length)
-            // db.products.destroy({ where: resp }).then((result) => {
-            //     console.log(result)
-            // })
         })
-        _.forEach(req.body.products, (val, key) => {
-            db.products.findOne({ where: { ProductID: val.ProductID } }).then((product) => {
-                if (product) {
-                    db.products.update(val, { where: { ProductID: val.ProductID } }).then((data) => {
-                        console.log(data)
-                    })
-                } else {
-                    db.products.create(val).then((data) => {
-                        console.log(data)
-                    })
-                }
-            })
-            if (key == resp.length - 1) {
-                res.json({ status: 1, message: success })
-            }
-        })
-
     }
 
     getProducts = (req, res, next) => {
