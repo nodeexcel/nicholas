@@ -20,7 +20,7 @@ if (process.env.ENV == "dev") {
         "db": {
             "host": "nicholas.cs26dooygdod.us-east-2.rds.amazonaws.com",
             "name": "nicholas",
-            "password": "java@123",
+            "password": "java1234",
             "username": "root"
         }
     }
