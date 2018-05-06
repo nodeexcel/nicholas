@@ -14,7 +14,7 @@ export class UserController extends BaseAPIController {
         });
         console.log("]]]]]]]]]]]]]]]")
         var params = {
-            url: "http://localhost:5001/msd1.jpg",
+            url: `http://${req.hostname}:5001/msd1.jpg`,
             wait: true,
             lossy: true
         };
