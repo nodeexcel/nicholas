@@ -16,7 +16,6 @@ export class UserController extends BaseAPIController {
 
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
-            console.log("ppppppppppp", fields)
             fs.readFile(files.file.path, function(err, data) {
                 let myDir = __dirname + "/files";
                 if (!fs.existsSync(myDir)) {
@@ -30,12 +29,13 @@ export class UserController extends BaseAPIController {
                     // console.log(zipEntry.toString('utf8'), "entries", key)
                     if (!zipEntry.isDirectory) {
                         if (zipEntry.name) {
+                            console.log(zipEntry.entryName)
                             let kraken = new Kraken({
                                 "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
                                 "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
                             });
                             let params = {
-                                url: `https://www.google.co.in/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png`,
+                                url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
                                 wait: true,
                                 lossy: true
                             };
@@ -44,7 +44,7 @@ export class UserController extends BaseAPIController {
                                 if (status.success) {
                                     console.log("Success. Optimized image URL: ", status.kraked_url);
                                     cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                        console.log(result, "llllllllllllllllllllllllllllllllllllllll")
+                                        console.log(result, "cloudinary result")
                                     });
                                 } else {
                                     console.log("Fail. Error message: ", status.message);
