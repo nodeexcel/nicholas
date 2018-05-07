@@ -13,7 +13,6 @@ const app = express();
 app.server = http.createServer(app);
 app.set('view engine', 'jade');
 
-app.use(cors());
 app.use(cors({
     exposedHeaders: environment.config.corsHeaders
 }));
