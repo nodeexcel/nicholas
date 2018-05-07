@@ -4,13 +4,13 @@ import AdmZip from 'adm-zip';
 import fs from "fs";
 import formidable from "formidable";
 import Kraken from "kraken";
-// import cloudinary from 'cloudinary';
+import cloudinary from 'cloudinary';
 import rmdir from 'rimraf';
-// cloudinary.config({
-//     cloud_name: 'dtgbbrxs0',
-//     api_key: '296789734731114',
-//     api_secret: 'FNqRNKXgicTjVfaEj39DjsDDBEY'
-// });
+cloudinary.config({
+    cloud_name: 'dtgbbrxs0',
+    api_key: '296789734731114',
+    api_secret: 'FNqRNKXgicTjVfaEj39DjsDDBEY'
+});
 export class UserController extends BaseAPIController {
     uploadImage = (req, res, next) => {
 
