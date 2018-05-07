@@ -16,6 +16,7 @@ export class UserController extends BaseAPIController {
 
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
+            console.log("ppppppppppp", fields)
             fs.readFile(files.file.path, function(err, data) {
                 let myDir = __dirname + "/files";
                 if (!fs.existsSync(myDir)) {
