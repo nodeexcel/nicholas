@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import environment from './environment';
-// import db from './db';
+import db from './db';
 import expressValidator from "express-validator";
 import glob from "glob";
 import path from "path";
@@ -22,7 +22,7 @@ app.use(bodyParser.json({
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use(express.static(path.join(__dirname)));
+app.use('/images', express.static(path.join(__dirname)))
 
 app.use(expressValidator());
 

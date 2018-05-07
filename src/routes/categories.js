@@ -6,11 +6,11 @@ export default (app) => {
 
     app.route("/catogory/createCatogory").post(categories.createCategory);
 
-    app.route("/catogory/getAllCatogory").post(categories.getAllCategory);
+    app.route("/catogory/getAllCatogory").get(categories.getAllCategory);
 
-    app.route("/catogory/updateCatogory").post(categories.updateCategory);
+    app.route("/catogory/updateCatogory").put(categories.updateCategory);
 
-    app.route("/catogory/deleteCatogory/:id").post(categories.deleteCategory);
+    app.route("/catogory/deleteCatogory/:id").delete(categories.deleteCategory);
 
     return app;
 };

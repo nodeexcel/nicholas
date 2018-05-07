@@ -1,59 +1,67 @@
 import BaseAPIController from "./BaseAPIController";
 import db from '../db.js'
-var AdmZip = require('adm-zip');
+import AdmZip from 'adm-zip';
 import fs from "fs";
 import formidable from "formidable";
-var Kraken = require("kraken");
-
+import Kraken from "kraken";
+import cloudinary from 'cloudinary';
+import rmdir from 'rimraf';
+cloudinary.config({
+    cloud_name: 'dtgbbrxs0',
+    api_key: '296789734731114',
+    api_secret: 'FNqRNKXgicTjVfaEj39DjsDDBEY'
+});
 export class UserController extends BaseAPIController {
-
     uploadImage = (req, res, next) => {
-        var kraken = new Kraken({
-            "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
-            "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
-        });
-        console.log("]]]]]]]]]]]]]]]")
-        var params = {
-            url: `http://${req.hostname}:5001/msd1.jpg`,
-            wait: true,
-            lossy: true
-        };
-        console.log(params)
 
-        kraken.url(params, function(status) {
-            console.log("=======================================")
-            if (status.success) {
-                console.log("Success. Optimized image URL: %s", status.kraked_url);
-            } else {
-                console.log("Fail. Error message: %s", status.message);
-            }
-        });
+        let form = new formidable.IncomingForm();
+        form.parse(req, function(err, fields, files) {
+            fs.readFile(files.file.path, function(err, data) {
+                let myDir = __dirname + "/files";
+                if (!fs.existsSync(myDir)) {
+                    fs.mkdirSync(myDir);
+                }
+                let directory = '';
+                let zip = new AdmZip(data);
+                let zipEntries = zip.getEntries(); // 
+                zip.extractAllTo(myDir, true);
+                zipEntries.forEach(function(zipEntry, key) {
+                    // console.log(zipEntry.toString('utf8'), "entries", key)
+                    if (!zipEntry.isDirectory) {
+                        if (zipEntry.name) {
+                            let kraken = new Kraken({
+                                "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
+                                "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
+                            });
+                            let params = {
+                                url: `https://www.google.co.in/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png`,
+                                wait: true,
+                                lossy: true
+                            };
+                            console.log(params)
+                            kraken.url(params, function(status) {
+                                if (status.success) {
+                                    console.log("Success. Optimized image URL: ", status.kraked_url);
+                                    // cloudinary.uploader.upload(status.kraked_url, function(result) {
+                                    //     console.log(result, "llllllllllllllllllllllllllllllllllllllll")
+                                    // });
+                                } else {
+                                    console.log("Fail. Error message: ", status.message);
+                                }
+                            });
+                        }
+                    } else {
+                        directory = zipEntry.entryName
+                    }
+                    if (key == zipEntries.length - 1) {
+                        rmdir(myDir + '/' + directory, function(error, data) {
+                            console.log(err)
+                        });
+                    }
+                });
 
-        // reading archives
-        // console.log("=======================")
-        // let form = new formidable.IncomingForm();
-        // form.parse(req, function(err, fields, files) {
-        //     // let new_path = path.join(__dirname, files.file.name);
-        //     fs.readFile(files.file.path, function(err, data) {
-        //         // response.pipe(file);
-        //         // console.log(data.toString('utf8'), "kkkkkkkkkkkkkkkkkkkkk")
-        //     })
-        // })
-        // var zip = new AdmZip("/var/www/html/msdpics.zip");
-        // var zipEntries = zip.getEntries(); // an array of ZipEntry records
-        // zipEntries.forEach(function(zipEntry) {
-        //     if (!zipEntry.isDirectory) {
-        //         // console.log(zipEntry.toString(), "============================"); // outputs zip entries information
-        //         console.log(zipEntry.name, "============================"); // outputs zip entries information
-        //     }
-        // });
-
-        // zip.extractAllTo( /*target path*/ "/home/etech", /*overwrite*/ true);
-        // fs.unlink('/home/etech/msdpics', function() {
-        //     console.log("success");
-        //     res.json("success")
-        // });
-
+            })
+        })
     }
 
 }
