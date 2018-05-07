@@ -11,6 +11,7 @@ import path from "path";
 
 const app = express();
 app.server = http.createServer(app);
+app.set('view engine', 'jade');
 
 app.use(cors());
 app.use(cors({
@@ -22,8 +23,7 @@ app.use(bodyParser.json({
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use('/images', express.static(path.join(__dirname)))
-
+app.use(express.static(__dirname))
 app.use(expressValidator());
 
 const initRoutes = (app) => {
