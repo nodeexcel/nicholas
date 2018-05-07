@@ -42,9 +42,9 @@ export class UserController extends BaseAPIController {
                             kraken.url(params, function(status) {
                                 if (status.success) {
                                     console.log("Success. Optimized image URL: ", status.kraked_url);
-                                    // cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                    //     console.log(result, "llllllllllllllllllllllllllllllllllllllll")
-                                    // });
+                                    cloudinary.uploader.upload(status.kraked_url, function(result) {
+                                        console.log(result, "llllllllllllllllllllllllllllllllllllllll")
+                                    });
                                 } else {
                                     console.log("Fail. Error message: ", status.message);
                                 }
