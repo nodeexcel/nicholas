@@ -69,6 +69,9 @@ export class UserController extends BaseAPIController {
                                                         }
                                                     } else {
                                                         errors.push(zipEntry.name)
+                                                        if (result && key == zipEntries.length - 1) {
+                                                            res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                                        }
                                                     }
                                                 })
                                                 // if (result) {
