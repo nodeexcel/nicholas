@@ -49,7 +49,7 @@ export class UserController extends BaseAPIController {
                                         if (result && key == zipEntries.length - 1) {
                                             res.json({
                                                 status: 1,
-                                                message: "success"
+                                                message: "success",
                                                 data: FinalResult
                                             })
                                             //     rmdir(myDir + '/' + directory, function(error, data) {
