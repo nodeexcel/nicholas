@@ -36,8 +36,7 @@ export class UserController extends BaseAPIController {
                                 let productID = zipEntry.name.split(".");
                                 console.log(zipEntry.name, productID[0])
                                 db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
-                                    console.log(data, "===========ooooooooooo=======")
-                                    if (!data) {
+                                    if (!product) {
                                         console.log("iff=====================")
                                         errors.push(zipEntry.name)
                                         if (key == zipEntries.length - 1) {
