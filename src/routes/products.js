@@ -6,7 +6,7 @@ export default (app) => {
 
     app.route("/products/createProducts").post(products.createProducts);
 
-    app.route("/products/getProducts").post(products.getProducts);
+    app.route("/products/getProducts").get(products.getProducts);
 
 
     return app;
