@@ -26,7 +26,7 @@ export class UserController extends BaseAPIController {
                 let zipEntries = zip.getEntries(); // 
                 zip.extractAllTo(myDir, true);
                 zipEntries.forEach(function(zipEntry, key) {
-                    // console.log(zipEntry.toString('utf8'), "entries", key)
+                    console.log(zipEntry.toString('utf8'), "entries", key)
                     if (!zipEntry.isDirectory) {
                         if (zipEntry.name) {
                             console.log(zipEntry.entryName)

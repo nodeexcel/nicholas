@@ -12,7 +12,13 @@ import path from "path";
 const app = express();
 app.server = http.createServer(app);
 app.set('view engine', 'jade');
-
+var corsOptions = {
+    origin: true,
+    methods: ['GET, POST, OPTIONS, PUT, PATCH, DELETE'],
+    allowedHeaders: ['Origin', 'Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: true
+};
+app.use(cors(corsOptions))
 app.use(cors({
     exposedHeaders: environment.config.corsHeaders
 }));
