@@ -38,7 +38,8 @@ export class UserController extends BaseAPIController {
                                 db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
 
                                     if (!data) {
-                                        errors.push(productID[0])
+                                        console.log("iff=====================")
+                                        errors.push(zipEntry.name)
                                         if (key == zipEntries.length - 1) {
                                             res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
                                             //     rmdir(myDir + '/' + directory, function(error, data) {
@@ -46,6 +47,7 @@ export class UserController extends BaseAPIController {
                                             //     });
                                         }
                                     } else {
+                                        console.log("else============================")
                                         let kraken = new Kraken({
                                             "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
                                             "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
