@@ -64,19 +64,22 @@ export class UserController extends BaseAPIController {
                                                 db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: productID[0] } }).then((product) => {
                                                     if (product[0] == 1) {
                                                         FinalResult.push(result.url)
+                                                        if (result && key == zipEntries.length - 1) {
+                                                            res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                                        }
                                                     } else {
                                                         errors.push(zipEntry.name)
                                                     }
                                                 })
-                                                if (result) {
-                                                    imageFlag = true
-                                                    if (key == zipEntries.length - 1) {
-                                                        res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
-                                                    }
-                                                    //     rmdir(myDir + '/' + directory, function(error, data) {
-                                                    //         console.log(err)
-                                                    //     });
-                                                }
+                                                // if (result) {
+                                                //     imageFlag = true
+                                                //     if (key == zipEntries.length - 1) {
+                                                //         res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                                //     }
+                                                //     //     rmdir(myDir + '/' + directory, function(error, data) {
+                                                //     //         console.log(err)
+                                                //     //     });
+                                                // }
                                             });
                                         } else {
                                             console.log("Fail. Error message: ", status.message);
