@@ -72,7 +72,6 @@ export class UserController extends BaseAPIController {
                                                     if (key == zipEntries.length - 1) {
                                                         res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
                                                     }
-
                                                     //     rmdir(myDir + '/' + directory, function(error, data) {
                                                     //         console.log(err)
                                                     //     });
@@ -80,7 +79,9 @@ export class UserController extends BaseAPIController {
                                             });
                                         } else {
                                             console.log("Fail. Error message: ", status.message);
+                                            console.log(imageFlag, key, zipEntries.length, "mkmkmk")
                                             if (imageFlag && key == zipEntries.length - 1) {
+                                                console.log("opopoopopopopopooopopo")
                                                 errors.push(zipEntry.name)
                                                 res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
                                             }
