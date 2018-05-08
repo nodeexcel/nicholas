@@ -42,30 +42,31 @@ export class UserController extends BaseAPIController {
                                 let productID = zipEntry.name.split(".");
                                 console.log(zipEntry.name, productID[0])
                                 db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
-                                    let params = {}
-                                    if (product) {
-                                        params = {
-                                            url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
-                                            wait: true,
-                                            lossy: true
-                                        };
-                                        // errors.push(zipEntry.name)
-                                        // if (key == zipEntries.length - 1) {
-                                        //     res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
-                                        //     //     rmdir(myDir + '/' + directory, function(error, data) {
-                                        //     //         console.log(err)
-                                        //     //     });
-                                        // }
-                                    }
+
+                                    params = {
+                                        url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
+                                        wait: true,
+                                        lossy: true
+                                    };
+                                    // errors.push(zipEntry.name)
+                                    // if (key == zipEntries.length - 1) {
+                                    //     res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                    //     //     rmdir(myDir + '/' + directory, function(error, data) {
+                                    //     //         console.log(err)
+                                    //     //     });
+                                    // }
 
 
                                     kraken.url(params, function(status) {
                                         if (status.success) {
                                             console.log("Success. Optimized image URL: ", status.kraked_url);
                                             cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                                FinalResult.push(result.url)
                                                 db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: productID[0] } }).then((product) => {
-                                                    console.log(product, "ookk")
+                                                    if (product[0] == 1) {
+                                                        FinalResult.push(result.url)
+                                                    } else {
+                                                        errors.push(zipEntry.name)
+                                                    }
                                                 })
                                                 if (result) {
                                                     imageFlag = true
@@ -79,12 +80,6 @@ export class UserController extends BaseAPIController {
                                             });
                                         } else {
                                             console.log("Fail. Error message: ", status.message);
-                                            console.log(imageFlag, key, zipEntries.length, "mkmkmk")
-                                            if (imageFlag && key == zipEntries.length - 1) {
-                                                console.log("opopoopopopopopooopopo")
-                                                errors.push(zipEntry.name)
-                                                res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
-                                            }
                                         }
                                     });
 
