@@ -36,7 +36,7 @@ export class UserController extends BaseAPIController {
                                 console.log(zipEntry.name, productID[0])
                                 db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
                                     if (!product) {
-                                        errors.push(zipEntry.name)
+                                        errors.push(FinalResult.length + errors.length, "lengthhhhhhhhhhhhhhh", zipEntries.length - 1)
                                         if (FinalResult.length + errors.length == zipEntries.length - 1 && key == zipEntries.length - 1) {
                                             res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
                                             //     rmdir(myDir + '/' + directory, function(error, data) {
