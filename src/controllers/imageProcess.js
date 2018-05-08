@@ -13,7 +13,8 @@ cloudinary.config({
 });
 export class UserController extends BaseAPIController {
     uploadImage = (req, res, next) => {
-
+        let result = []
+        console.log("========================")
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
             fs.readFile(files.file.path, function(err, data) {
@@ -54,11 +55,11 @@ export class UserController extends BaseAPIController {
                     } else {
                         directory = zipEntry.entryName
                     }
-                    if (key == zipEntries.length - 1) {
-                        rmdir(myDir + '/' + directory, function(error, data) {
-                            console.log(err)
-                        });
-                    }
+                    // if (key == zipEntries.length - 1) {
+                    //     rmdir(myDir + '/' + directory, function(error, data) {
+                    //         console.log(err)
+                    //     });
+                    // }
                 });
 
             })
