@@ -34,7 +34,7 @@ export class UserController extends BaseAPIController {
                     let zipEntries = zip.getEntries();
                     zip.extractAllTo(myDir, true);
                     zipEntries.forEach(function(zipEntry, key) {
-                        let imageFlag = true = false;
+                        let imageFlag = false;
 
                         // console.log(zipEntry.toString('utf8'), "entries", key)
                         if (!zipEntry.isDirectory) {
