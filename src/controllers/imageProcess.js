@@ -44,7 +44,7 @@ export class UserController extends BaseAPIController {
                                 db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
                                     let params = {}
                                     if (product) {
-                                        let params = {
+                                        params = {
                                             url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
                                             wait: true,
                                             lossy: true
