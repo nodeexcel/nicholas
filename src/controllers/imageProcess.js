@@ -33,14 +33,16 @@ export class UserController extends BaseAPIController {
                     let zip = new AdmZip(data);
                     let zipEntries = zip.getEntries();
                     zip.extractAllTo(myDir, true);
-                    let imageFlag = false;
                     zipEntries.forEach(function(zipEntry, key) {
+                        let imageFlag = true = false;
+
                         // console.log(zipEntry.toString('utf8'), "entries", key)
                         if (!zipEntry.isDirectory) {
                             if (zipEntry.name) {
                                 let productID = zipEntry.name.split(".");
                                 console.log(zipEntry.name, productID[0])
                                 db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
+                                    let params = {}
                                     if (product) {
                                         let params = {
                                             url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
@@ -65,8 +67,11 @@ export class UserController extends BaseAPIController {
                                                 db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: productID[0] } }).then((product) => {
                                                     console.log(product, "ookk")
                                                 })
-                                                if (result && key == zipEntries.length - 1) {
-                                                    res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                                if (result) {
+                                                    imageFlag = true
+                                                    if (key == zipEntries.length - 1) {
+                                                        res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                                    }
 
                                                     //     rmdir(myDir + '/' + directory, function(error, data) {
                                                     //         console.log(err)
@@ -75,6 +80,10 @@ export class UserController extends BaseAPIController {
                                             });
                                         } else {
                                             console.log("Fail. Error message: ", status.message);
+                                            if (imageFlag && key == zipEntries.length - 1) {
+                                                errors.push(zipEntry.name)
+                                                res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                            }
                                         }
                                     });
 
