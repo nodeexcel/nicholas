@@ -30,9 +30,15 @@ export class UserController extends BaseAPIController {
                 }
                 var arr = []
                 db.products.findAll({}).then((resp) => {
-                    arr = resp.filter(function(item) {
-                        return result.indexOf(item.id) === -1;
-                    });
+                    _.map(body.questionIds, (val, key) => {
+                        _.filter(result, function(index) {
+                            if (index._id == val) {
+
+
+
+                            }
+                        })
+                    })
                     // _.map(result, (val, key) => {
                     //     _.remove(resp, function(index) {
                     //         return (index.ProductID == val.ProductID)
