@@ -13,7 +13,7 @@ cloudinary.config({
 });
 export class UserController extends BaseAPIController {
     uploadImage = (req, res, next) => {
-        let result = []
+        let FinalResult = []
         console.log("========================")
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
@@ -45,7 +45,17 @@ export class UserController extends BaseAPIController {
                                 if (status.success) {
                                     console.log("Success. Optimized image URL: ", status.kraked_url);
                                     cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                        console.log(result, "cloudinary result")
+                                        FinalResult.push(result.url)
+                                        if (result && key == zipEntries.length - 1) {
+                                            res.json({
+                                                status: 1,
+                                                message: "success"
+                                                data: FinalResult
+                                            })
+                                            //     rmdir(myDir + '/' + directory, function(error, data) {
+                                            //         console.log(err)
+                                            //     });
+                                        }
                                     });
                                 } else {
                                     console.log("Fail. Error message: ", status.message);
@@ -55,11 +65,7 @@ export class UserController extends BaseAPIController {
                     } else {
                         directory = zipEntry.entryName
                     }
-                    // if (key == zipEntries.length - 1) {
-                    //     rmdir(myDir + '/' + directory, function(error, data) {
-                    //         console.log(err)
-                    //     });
-                    // }
+
                 });
 
             })
