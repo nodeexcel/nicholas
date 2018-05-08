@@ -10,8 +10,10 @@ import path from "path";
 export class UserController extends BaseAPIController {
 
     createProducts = (req, res, next) => {
+        console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
+            console.log(files, "kkkkkkkkkkkkkkkkkkkkkkkkkkk")
             // let new_path = path.join(__dirname, files.file.name);
             fs.readFile(files.file.path, function(err, data) {
                 var csv = data.toString('utf8')
@@ -26,15 +28,22 @@ export class UserController extends BaseAPIController {
                     }
                     result.push(obj);
                 }
-
+                var arr = []
                 db.products.findAll({}).then((resp) => {
-                    _.map(result, (val, key) => {
-                        return _.remove(resp, function(index) {
-                            return (index.ProductID == val.ProductID)
-                        })
-                    })
+                    arr = resp.filter(function(item) {
+                        return result.indexOf(item.id) === -1;
+                    });
+                    // _.map(result, (val, key) => {
+                    //     _.remove(resp, function(index) {
+                    //         return (index.ProductID == val.ProductID)
+                    //     })
+                    // })
+                    console.log(arr, "==================================================")
 
                 })
+
+                // let check = _.find(data.answers, function(get) { return get.Q_id == val._id; });
+
                 _.forEach(result, (val, key) => {
                     db.products.findOne({ where: { ProductID: val.ProductID } }).then((product) => {
                         if (product) {
