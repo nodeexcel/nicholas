@@ -44,10 +44,15 @@ export class UserController extends BaseAPIController {
                     })
 
                     _.forEach(result, (val, key) => {
+                        delete val.ImageFullsizeURL;
+                        console.log(val, "pppppppppppppppppppppppppp")
                         db.products.findOne({ where: { ProductID: val.ProductID } }).then((product) => {
                             if (product) {
+                                console.log(val, "createeeeeeeeeeeeeeeeeeeeeeee")
                                 db.products.update(val, { where: { ProductID: val.ProductID } }).then((data) => {})
                             } else {
+                                console.log(val, "upateeeeeeeeeeeeeeeeeeeeeee")
+
                                 db.products.create(val).then((data) => {})
                             }
                         })
