@@ -43,7 +43,7 @@ export class UserController extends BaseAPIController {
                                 console.log(zipEntry.name, productID[0])
                                 db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
 
-                                    params = {
+                                    let params = {
                                         url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
                                         wait: true,
                                         lossy: true
