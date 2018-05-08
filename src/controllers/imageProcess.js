@@ -14,6 +14,7 @@ cloudinary.config({
 export class UserController extends BaseAPIController {
     uploadImage = (req, res, next) => {
         let FinalResult = []
+        let errors = []
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
             if (files && files.file.type != 'application/zip') {
@@ -26,43 +27,58 @@ export class UserController extends BaseAPIController {
                     }
                     let directory = '';
                     let zip = new AdmZip(data);
-                    let zipEntries = zip.getEntries(); // 
+                    let zipEntries = zip.getEntries();
                     zip.extractAllTo(myDir, true);
                     zipEntries.forEach(function(zipEntry, key) {
                         console.log(zipEntry.toString('utf8'), "entries", key)
                         if (!zipEntry.isDirectory) {
                             if (zipEntry.name) {
-                                console.log(zipEntry.entryName)
-                                let kraken = new Kraken({
-                                    "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
-                                    "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
-                                });
-                                let params = {
-                                    url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
-                                    wait: true,
-                                    lossy: true
-                                };
-                                console.log(params)
-                                kraken.url(params, function(status) {
-                                    if (status.success) {
-                                        console.log("Success. Optimized image URL: ", status.kraked_url);
-                                        cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                            FinalResult.push(result.url)
-                                            if (result && key == zipEntries.length - 1) {
-                                                res.json({
-                                                    status: 1,
-                                                    message: "success",
-                                                    data: FinalResult
-                                                })
-                                                //     rmdir(myDir + '/' + directory, function(error, data) {
-                                                //         console.log(err)
-                                                //     });
+                                let productID = zipEntry.name.split(".");
+                                console.log(zipEntry.name, productID[0])
+                                db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
+
+                                    if (!data) {
+                                        errors.push(productID[0])
+                                        if (key == zipEntries.length - 1) {
+                                            res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+                                            //     rmdir(myDir + '/' + directory, function(error, data) {
+                                            //         console.log(err)
+                                            //     });
+                                        }
+                                    } else {
+                                        let kraken = new Kraken({
+                                            "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
+                                            "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
+                                        });
+                                        let params = {
+                                            url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
+                                            wait: true,
+                                            lossy: true
+                                        };
+                                        console.log(params)
+                                        kraken.url(params, function(status) {
+                                            if (status.success) {
+                                                console.log("Success. Optimized image URL: ", status.kraked_url);
+                                                cloudinary.uploader.upload(status.kraked_url, function(result) {
+                                                    FinalResult.push(result.url)
+                                                    db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: productID[0] } }).then((product) => {
+                                                        console.log(product, "ookk")
+                                                    })
+                                                    if (result && key == zipEntries.length - 1) {
+                                                        res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
+
+                                                        //     rmdir(myDir + '/' + directory, function(error, data) {
+                                                        //         console.log(err)
+                                                        //     });
+                                                    }
+                                                });
+                                            } else {
+                                                console.log("Fail. Error message: ", status.message);
                                             }
                                         });
-                                    } else {
-                                        console.log("Fail. Error message: ", status.message);
                                     }
-                                });
+
+                                })
                             }
                         } else {
                             directory = zipEntry.entryName

@@ -10,59 +10,54 @@ import path from "path";
 export class UserController extends BaseAPIController {
 
     createProducts = (req, res, next) => {
-        console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
-            console.log(files, "kkkkkkkkkkkkkkkkkkkkkkkkkkk")
-            // let new_path = path.join(__dirname, files.file.name);
-            fs.readFile(files.file.path, function(err, data) {
-                var csv = data.toString('utf8')
-                var lines = csv.split("\n");
-                var result = [];
-                var headers = lines[0].split(",");
-                for (var i = 1; i < lines.length - 1; i++) {
-                    var obj = {};
-                    var currentline = lines[i].split(/,|"/);
-                    for (var j = 0; j < headers.length; j++) {
-                        obj[headers[j]] = currentline[j] ? currentline[j] : null;
+            if (files && files.file.type != 'text/csv') {
+                res.status(400).json({ error: 1, message: "please upload csv file" })
+            } else {
+                fs.readFile(files.file.path, function(err, data) {
+                    var csv = data.toString('utf8')
+                    var lines = csv.split("\n");
+                    var result = [];
+                    var headers = lines[0].split(",");
+                    for (var i = 1; i < lines.length; i++) {
+                        var obj = {};
+                        var currentline = lines[i].split(/,|"/);
+                        for (var j = 0; j < headers.length; j++) {
+                            obj[headers[j]] = currentline[j] ? currentline[j] : null;
+                        }
+                        result.push(obj);
                     }
-                    result.push(obj);
-                }
-                var arr = []
-                db.products.findAll({}).then((resp) => {
-                    _.map(body.questionIds, (val, key) => {
-                        _.filter(result, function(index) {
-                            if (index._id == val) {
 
-
-
+                    db.products.findAll({}).then((resp) => {
+                        var arrToDelete = []
+                        _.map(resp, (val, key) => {
+                            console.log(resp.length, result.length, val.ProductID)
+                            let findProduct = _.find(result, function(get) { return get.ProductID == val.ProductID; });
+                            if (!findProduct) {
+                                arrToDelete.push(val.ProductID)
                             }
                         })
+                        db.products.destroy({ where: { ProductID: arrToDelete } }).then((data) => {
+                            console.log(data, "deleted")
+                        })
                     })
-                    // _.map(result, (val, key) => {
-                    //     _.remove(resp, function(index) {
-                    //         return (index.ProductID == val.ProductID)
-                    //     })
-                    // })
-                    console.log(arr, "==================================================")
 
-                })
-
-                // let check = _.find(data.answers, function(get) { return get.Q_id == val._id; });
-
-                _.forEach(result, (val, key) => {
-                    db.products.findOne({ where: { ProductID: val.ProductID } }).then((product) => {
-                        if (product) {
-                            db.products.update(val, { where: { ProductID: val.ProductID } }).then((data) => {})
-                        } else {
-                            db.products.create(val).then((data) => {})
+                    _.forEach(result, (val, key) => {
+                        db.products.findOne({ where: { ProductID: val.ProductID } }).then((product) => {
+                            if (product) {
+                                db.products.update(val, { where: { ProductID: val.ProductID } }).then((data) => {})
+                            } else {
+                                db.products.create(val).then((data) => {})
+                            }
+                        })
+                        if (key == result.length - 1) {
+                            res.json({ status: 1, message: "success" })
                         }
                     })
-                    if (key == result.length - 1) {
-                        res.json({ status: 1, message: "success" })
-                    }
                 })
-            })
+            }
+
         })
     }
 
