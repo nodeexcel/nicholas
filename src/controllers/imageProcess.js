@@ -6,6 +6,8 @@ import formidable from "formidable";
 import Kraken from "kraken";
 import cloudinary from 'cloudinary';
 import rmdir from 'rimraf';
+import _ from "lodash";
+
 cloudinary.config({
     cloud_name: 'dtgbbrxs0',
     api_key: '296789734731114',
@@ -13,11 +15,11 @@ cloudinary.config({
 });
 export class UserController extends BaseAPIController {
     uploadImage = (req, res, next) => {
+        let finalImageUrls = [];
         let kraken = new Kraken({
             "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
             "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
         });
-        let FinalResult = []
         let errors = []
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
@@ -33,6 +35,7 @@ export class UserController extends BaseAPIController {
                     let zip = new AdmZip(data);
                     let zipEntries = zip.getEntries();
                     zip.extractAllTo(myDir, true);
+                    let productIDS = []
                     zipEntries.forEach(function(zipEntry, key) {
                         let imageFlag = false;
 
@@ -40,63 +43,70 @@ export class UserController extends BaseAPIController {
                         if (!zipEntry.isDirectory) {
                             if (zipEntry.name) {
                                 let productID = zipEntry.name.split(".");
-                                console.log(zipEntry.name, productID[0])
-                                db.products.findOne({ where: { productID: productID[0] } }).then((product) => {
-
-                                    let params = {
-                                        url: `http://${req.hostname}:5001/controllers/files/${zipEntry.entryName}`,
-                                        wait: true,
-                                        lossy: true
-                                    };
-                                    // errors.push(zipEntry.name)
-                                    // if (key == zipEntries.length - 1) {
-                                    //     res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
-                                    //     //     rmdir(myDir + '/' + directory, function(error, data) {
-                                    //     //         console.log(err)
-                                    //     //     });
-                                    // }
-
-
-                                    kraken.url(params, function(status) {
-                                        if (status.success) {
-                                            console.log("Success. Optimized image URL: ", status.kraked_url);
-                                            cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                                db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: productID[0] } }).then((product) => {
-                                                    if (product[0] == 1) {
-                                                        FinalResult.push(result.url)
-                                                        if (result && key == zipEntries.length - 1) {
-                                                            res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
-                                                        }
-                                                    } else {
-                                                        errors.push(zipEntry.name)
-                                                        if (result && key == zipEntries.length - 1) {
-                                                            res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
-                                                        }
-                                                    }
-                                                })
-                                                // if (result) {
-                                                //     imageFlag = true
-                                                //     if (key == zipEntries.length - 1) {
-                                                //         res.json({ status: 1, message: "success", data: FinalResult, errors: errors })
-                                                //     }
-                                                //     //     rmdir(myDir + '/' + directory, function(error, data) {
-                                                //     //         console.log(err)
-                                                //     //     });
-                                                // }
-                                            });
-                                        } else {
-                                            console.log("Fail. Error message: ", status.message);
-                                        }
-                                    });
-
-
-                                })
+                                productIDS.push(productID[0])
+                                console.log(productIDS, key)
                             }
                         } else {
                             directory = zipEntry.entryName
                         }
-
                     });
+                    let validImages = []
+                    db.products.findAll({}).then((product) => {
+                        _.map(product, (val, key) => {
+                            _.filter(productIDS, function(index) {
+                                // console.log(index, val.ProductID, "kokokoko")
+                                if (index == val.ProductID) {
+                                    validImages.push(index)
+                                } else {
+                                    console.log("false")
+                                }
+                            });
+                        });
+                        let errors = _.difference(productIDS, validImages);
+                        console.log(validImages, "kokokokokokoooooooooo", errors)
+                        cloudImageUrls(validImages, directory, directory, function(final_response) {
+                            res.json({ status: 1, data: final_response, errors: errors })
+                        })
+                    })
+
+                    function cloudImageUrls(validImages, directory, callback) {
+                        // console.log()
+                        let image = validImages.splice(0, 1)[0];
+                        console.log(image, "oppppppppp")
+                        // finalImageUrls.push(image)
+                        let params = {
+                            url: `http://${req.hostname}:5001/controllers/files/${directory}`,
+                            wait: true,
+                            lossy: true
+                        };
+
+                        kraken.url(params, function(status) {
+                            if (status.success) {
+                                console.log("Success. Optimized image URL: ", status.kraked_url);
+                                cloudinary.uploader.upload(status.kraked_url, function(result) {
+                                    if (result) {
+                                        finalImageUrls.push(result.url)
+                                        db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image } }).then((updatedImages) => {
+                                            console.log(updatedImages)
+                                        })
+                                        if (validImages.length) {
+                                            cloudImageUrls(validImages, directory, callback)
+                                        } else {
+                                            callback(finalImageUrls)
+                                        }
+                                    }
+                                    //     //     rmdir(myDir + '/' + directory, function(error, data) {
+                                    //     //         console.log(err)
+                                    //     //     });
+                                    // }
+                                });
+                            } else {
+                                console.log("Fail. Error message: ", status.message);
+                            }
+                        });
+
+                    }
+
                 })
             }
 
