@@ -51,27 +51,27 @@ export class UserController extends BaseAPIController {
                         }
                     });
                     let validImages = []
+                    let errors = []
                     db.products.findAll({}).then((product) => {
                         _.map(product, (val, key) => {
                             _.filter(productIDS, function(index) {
                                 // console.log(index, val.ProductID, "kokokoko")
-                                if (index == val.ProductID) {
+                                if (index.Pid == val.ProductID) {
                                     validImages.push(index)
                                 } else {
-                                    console.log("false")
+                                    errors.push(index.Pid)
                                 }
                             });
                         });
-                        let errors = _.difference(productIDS, validImages);
-                        console.log(validImages, "kokokokokokoooooooooo", errors)
+                        console.log("errorsssssssssssssssss", errors)
                         cloudImageUrls(validImages, directory, function(final_response) {
-                            res.json({ status: 1, data: final_response, errors: errors })
+                            res.json({ status: 1, data: final_response, errors: _.uniq(errors) })
                         })
                     })
 
                     function cloudImageUrls(validImages, directory, callback) {
                         // console.log()
-                        console.log(validImages)
+                        console.log(validImages, "==========================================")
                         let image = validImages.splice(0, 1)[0];
                         console.log(image, "oppppppppp")
                         // finalImageUrls.push(image)
