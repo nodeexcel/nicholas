@@ -85,8 +85,8 @@ export class UserController extends BaseAPIController {
                                 console.log("Success. Optimized image URL: ", status.kraked_url);
                                 cloudinary.uploader.upload(status.kraked_url, function(result) {
                                     if (result) {
-                                        finalImageUrls.push(result.url)
-                                        db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.entry } }).then((updatedImages) => {
+                                        finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
+                                        db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
                                             console.log(updatedImages)
                                         })
                                         if (validImages.length) {
