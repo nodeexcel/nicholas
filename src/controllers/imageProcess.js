@@ -43,7 +43,7 @@ export class UserController extends BaseAPIController {
                         if (!zipEntry.isDirectory) {
                             if (zipEntry.name) {
                                 let productID = zipEntry.name.split(".");
-                                productIDS.push(productID[0])
+                                productIDS.push({ Pid: productID[0], entry: zipEntry.entryName })
                                 console.log(productIDS, key)
                             }
                         } else {
@@ -64,29 +64,29 @@ export class UserController extends BaseAPIController {
                         });
                         let errors = _.difference(productIDS, validImages);
                         console.log(validImages, "kokokokokokoooooooooo", errors)
-                        cloudImageUrls(validImages, directory, directory, function(final_response) {
+                        cloudImageUrls(validImages, directory, function(final_response) {
                             res.json({ status: 1, data: final_response, errors: errors })
                         })
                     })
 
                     function cloudImageUrls(validImages, directory, callback) {
                         // console.log()
+                        console.log(validImages)
                         let image = validImages.splice(0, 1)[0];
                         console.log(image, "oppppppppp")
                         // finalImageUrls.push(image)
                         let params = {
-                            url: `http://${req.hostname}:5001/controllers/files/${directory}`,
+                            url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
                             wait: true,
                             lossy: true
                         };
-
                         kraken.url(params, function(status) {
                             if (status.success) {
                                 console.log("Success. Optimized image URL: ", status.kraked_url);
                                 cloudinary.uploader.upload(status.kraked_url, function(result) {
                                     if (result) {
                                         finalImageUrls.push(result.url)
-                                        db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image } }).then((updatedImages) => {
+                                        db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.entry } }).then((updatedImages) => {
                                             console.log(updatedImages)
                                         })
                                         if (validImages.length) {
