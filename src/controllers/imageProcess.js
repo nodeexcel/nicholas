@@ -53,25 +53,25 @@ export class UserController extends BaseAPIController {
                     let validImages = []
                     let errors = []
                     db.products.findAll({}).then((product) => {
-                            _.map(product, (val, key) => {
-                                _.filter(productIDS, function(index) {
-                                    // console.log(index, val.ProductID, "kokokoko")
-                                    if (index.Pid == val.ProductID) {
-                                        validImages.push(index)
-                                    }
-                                });
+                        _.map(product, (val, key) => {
+                            _.filter(productIDS, function(index) {
+                                // console.log(index, val.ProductID, "kokokoko")
+                                if (index.Pid == val.ProductID) {
+                                    validImages.push(index)
+                                }
                             });
-                            _.map(product, (val, key) => {
-                                _.remove(productIDS, function(index) {
-                                    return (index.Pid == val.ProductID)
-                                })
+                        });
+                        _.map(product, (val, key) => {
+                            _.remove(productIDS, function(index) {
+                                return (index.Pid == val.ProductID)
                             })
-                            console.log(validImages, "errorsssssssssssssssss", productIDS)
+                        })
+                        console.log(validImages, "errorsssssssssssssssss", productIDS)
 
-                            cloudImageUrls(validImages, directory, function(final_response) {
-                                res.json({ status: 1, data: final_response, errors: productIDS })
-                            })
-                        }),
+                        cloudImageUrls(validImages, directory, function(final_response) {
+                            res.json({ status: 1, data: final_response, errors: productIDS })
+                        })
+
 
                         function cloudImageUrls(validImages, directory, callback) {
                             // console.log()
@@ -108,6 +108,7 @@ export class UserController extends BaseAPIController {
                             });
 
                         }
+                    })
 
                 })
             }
