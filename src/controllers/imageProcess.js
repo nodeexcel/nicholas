@@ -23,103 +23,105 @@ export class UserController extends BaseAPIController {
         let errors = []
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
-            if (files.file && files.file.type != 'application/zip') {
-                res.status(400).json({ error: 1, message: "please upload zip file" })
-            } else {
-                fs.readFile(files.file.path, function(err, data) {
-                    let myDir = __dirname + "/files";
-                    if (!fs.existsSync(myDir)) {
-                        fs.mkdirSync(myDir);
-                    }
-                    let directory = '';
-                    let zip = new AdmZip(data);
-                    let zipEntries = zip.getEntries();
-                    zip.extractAllTo(myDir, true);
-                    let productIDS = []
-                    zipEntries.forEach(function(zipEntry, key) {
-                        let imageFlag = false;
 
-                        // console.log(zipEntry.toString('utf8'), "entries", key)
-                        if (!zipEntry.isDirectory) {
-                            if (zipEntry.name) {
-                                let productID = zipEntry.name.split(".");
-                                productIDS.push({ Pid: productID[0], entry: zipEntry.entryName })
-                                // console.log(productIDS, key)
-                            }
-                        } else {
-                            directory = zipEntry.entryName
+            if (files.file) {
+                if (files.file.type != 'application/zip') {
+                    res.status(400).json({ error: 1, message: "please upload zip file" })
+                } else {
+                    fs.readFile(files.file.path, function(err, data) {
+                        let myDir = __dirname + "/files";
+                        if (!fs.existsSync(myDir)) {
+                            fs.mkdirSync(myDir);
                         }
-                    });
-                    let validImages = []
-                    let errors = []
-                    db.products.findAll({}).then((product) => {
-                        _.map(product, (val, key) => {
-                            _.filter(productIDS, function(index) {
-                                // console.log(index, val.ProductID, "kokokoko")
-                                if (index.Pid == val.ProductID) {
-                                    validImages.push(index)
+                        let directory = '';
+                        let zip = new AdmZip(data);
+                        let zipEntries = zip.getEntries();
+                        zip.extractAllTo(myDir, true);
+                        let productIDS = []
+                        zipEntries.forEach(function(zipEntry, key) {
+                            let imageFlag = false;
+
+                            // console.log(zipEntry.toString('utf8'), "entries", key)
+                            if (!zipEntry.isDirectory) {
+                                if (zipEntry.name) {
+                                    let productID = zipEntry.name.split(".");
+                                    productIDS.push({ Pid: productID[0], entry: zipEntry.entryName })
+                                    // console.log(productIDS, key)
                                 }
-                            });
+                            } else {
+                                directory = zipEntry.entryName
+                            }
                         });
-                        _.map(product, (val, key) => {
-                            _.remove(productIDS, function(index) {
-                                return (index.Pid == val.ProductID)
-                            })
-                        })
-                        console.log(validImages, "errorsssssssssssssssss", productIDS)
-
-                        cloudImageUrls(validImages, directory, function(final_response) {
-                            res.json({ status: 1, data: final_response, errors: productIDS })
-                        })
-
-
-                        function cloudImageUrls(validImages, directory, callback) {
-                            // console.log()
-
-                            if (validImages.length) {
-                                let image = validImages.splice(0, 1)[0];
-                                // finalImageUrls.push(image)
-                                let params = {
-                                    url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
-                                    wait: true,
-                                    lossy: true
-                                };
-                                kraken.url(params, function(status) {
-                                    if (status.success) {
-                                        console.log("Success. Optimized image URL: ", status.kraked_url);
-                                        cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                            if (result) {
-                                                finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
-                                                db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
-                                                    console.log(updatedImages)
-                                                })
-                                                if (validImages.length) {
-                                                    cloudImageUrls(validImages, directory, callback)
-                                                } else {
-                                                    callback(finalImageUrls)
-                                                }
-                                            }
-                                            //     //     rmdir(myDir + '/' + directory, function(error, data) {
-                                            //     //         console.log(err)
-                                            //     //     });
-                                            // }
-                                        });
-                                    } else {
-                                        console.log("Fail. Error message: ", status.message);
+                        let validImages = []
+                        let errors = []
+                        db.products.findAll({}).then((product) => {
+                            _.map(product, (val, key) => {
+                                _.filter(productIDS, function(index) {
+                                    // console.log(index, val.ProductID, "kokokoko")
+                                    if (index.Pid == val.ProductID) {
+                                        validImages.push(index)
                                     }
                                 });
-                            } else {
-                                callback(finalImageUrls)
+                            });
+                            _.map(product, (val, key) => {
+                                _.remove(productIDS, function(index) {
+                                    return (index.Pid == val.ProductID)
+                                })
+                            })
+                            console.log(validImages, "errorsssssssssssssssss", productIDS)
+
+                            cloudImageUrls(validImages, directory, function(final_response) {
+                                res.json({ status: 1, data: final_response, errors: productIDS })
+                            })
+
+
+                            function cloudImageUrls(validImages, directory, callback) {
+                                // console.log()
+
+                                if (validImages.length) {
+                                    let image = validImages.splice(0, 1)[0];
+                                    // finalImageUrls.push(image)
+                                    let params = {
+                                        url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
+                                        wait: true,
+                                        lossy: true
+                                    };
+                                    kraken.url(params, function(status) {
+                                        if (status.success) {
+                                            console.log("Success. Optimized image URL: ", status.kraked_url);
+                                            cloudinary.uploader.upload(status.kraked_url, function(result) {
+                                                if (result) {
+                                                    finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
+                                                    db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
+                                                        console.log(updatedImages)
+                                                    })
+                                                    if (validImages.length) {
+                                                        cloudImageUrls(validImages, directory, callback)
+                                                    } else {
+                                                        callback(finalImageUrls)
+                                                    }
+                                                }
+                                                //     //     rmdir(myDir + '/' + directory, function(error, data) {
+                                                //     //         console.log(err)
+                                                //     //     });
+                                                // }
+                                            });
+                                        } else {
+                                            console.log("Fail. Error message: ", status.message);
+                                        }
+                                    });
+                                } else {
+                                    callback(finalImageUrls)
+                                }
                             }
+                        })
 
-
-                        }
                     })
+                }
+            } else {
+                res.status(400).json({ error: 1, message: "file not recieved" })
 
-                })
             }
-
-
         })
     }
 
