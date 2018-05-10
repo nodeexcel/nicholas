@@ -75,37 +75,43 @@ export class UserController extends BaseAPIController {
 
                         function cloudImageUrls(validImages, directory, callback) {
                             // console.log()
-                            let image = validImages.splice(0, 1)[0];
-                            // finalImageUrls.push(image)
-                            let params = {
-                                url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
-                                wait: true,
-                                lossy: true
-                            };
-                            kraken.url(params, function(status) {
-                                if (status.success) {
-                                    console.log("Success. Optimized image URL: ", status.kraked_url);
-                                    cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                        if (result) {
-                                            finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
-                                            db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
-                                                console.log(updatedImages)
-                                            })
-                                            if (validImages.length) {
-                                                cloudImageUrls(validImages, directory, callback)
-                                            } else {
-                                                callback(finalImageUrls)
+
+                            if (validImages.length) {
+                                let image = validImages.splice(0, 1)[0];
+                                // finalImageUrls.push(image)
+                                let params = {
+                                    url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
+                                    wait: true,
+                                    lossy: true
+                                };
+                                kraken.url(params, function(status) {
+                                    if (status.success) {
+                                        console.log("Success. Optimized image URL: ", status.kraked_url);
+                                        cloudinary.uploader.upload(status.kraked_url, function(result) {
+                                            if (result) {
+                                                finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
+                                                db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
+                                                    console.log(updatedImages)
+                                                })
+                                                if (validImages.length) {
+                                                    cloudImageUrls(validImages, directory, callback)
+                                                } else {
+                                                    callback(finalImageUrls)
+                                                }
                                             }
-                                        }
-                                        //     //     rmdir(myDir + '/' + directory, function(error, data) {
-                                        //     //         console.log(err)
-                                        //     //     });
-                                        // }
-                                    });
-                                } else {
-                                    console.log("Fail. Error message: ", status.message);
-                                }
-                            });
+                                            //     //     rmdir(myDir + '/' + directory, function(error, data) {
+                                            //     //         console.log(err)
+                                            //     //     });
+                                            // }
+                                        });
+                                    } else {
+                                        console.log("Fail. Error message: ", status.message);
+                                    }
+                                });
+                            } else {
+                                callback(finalImageUrls)
+                            }
+
 
                         }
                     })
