@@ -25,7 +25,7 @@ export class UserController extends BaseAPIController {
         form.parse(req, function(err, fields, files) {
 
             if (files.file) {
-                if (files.file.type != 'application/zip') {
+                if (files.file.type != 'application/zip' || files.file.type != 'application/x-zip-compressed') {
                     res.status(400).json({ error: 1, message: "please upload zip file" })
                 } else {
                     fs.readFile(files.file.path, function(err, data) {
