@@ -44,7 +44,7 @@ export class UserController extends BaseAPIController {
                             if (zipEntry.name) {
                                 let productID = zipEntry.name.split(".");
                                 productIDS.push({ Pid: productID[0], entry: zipEntry.entryName })
-                                console.log(productIDS, key)
+                                // console.log(productIDS, key)
                             }
                         } else {
                             directory = zipEntry.entryName
@@ -53,59 +53,61 @@ export class UserController extends BaseAPIController {
                     let validImages = []
                     let errors = []
                     db.products.findAll({}).then((product) => {
-                        _.map(product, (val, key) => {
-                            _.filter(productIDS, function(index) {
-                                // console.log(index, val.ProductID, "kokokoko")
-                                if (index.Pid == val.ProductID) {
-                                    validImages.push(index)
+                            _.map(product, (val, key) => {
+                                _.filter(productIDS, function(index) {
+                                    // console.log(index, val.ProductID, "kokokoko")
+                                    if (index.Pid == val.ProductID) {
+                                        validImages.push(index)
+                                    }
+                                });
+                            });
+                            _.map(product, (val, key) => {
+                                _.remove(productIDS, function(index) {
+                                    return (index.Pid == val.ProductID)
+                                })
+                            })
+                            console.log(validImages, "errorsssssssssssssssss", productIDS)
+
+                            cloudImageUrls(validImages, directory, function(final_response) {
+                                res.json({ status: 1, data: final_response, errors: productIDS })
+                            })
+                        }),
+
+                        function cloudImageUrls(validImages, directory, callback) {
+                            // console.log()
+                            let image = validImages.splice(0, 1)[0];
+                            // finalImageUrls.push(image)
+                            let params = {
+                                url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
+                                wait: true,
+                                lossy: true
+                            };
+                            kraken.url(params, function(status) {
+                                if (status.success) {
+                                    console.log("Success. Optimized image URL: ", status.kraked_url);
+                                    cloudinary.uploader.upload(status.kraked_url, function(result) {
+                                        if (result) {
+                                            finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
+                                            db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
+                                                console.log(updatedImages)
+                                            })
+                                            if (validImages.length) {
+                                                cloudImageUrls(validImages, directory, callback)
+                                            } else {
+                                                callback(finalImageUrls)
+                                            }
+                                        }
+                                        //     //     rmdir(myDir + '/' + directory, function(error, data) {
+                                        //     //         console.log(err)
+                                        //     //     });
+                                        // }
+                                    });
                                 } else {
-                                    errors.push(index.Pid)
+                                    console.log("Fail. Error message: ", status.message);
                                 }
                             });
-                        });
-                        console.log("errorsssssssssssssssss", errors)
-                        cloudImageUrls(validImages, directory, function(final_response) {
-                            res.json({ status: 1, data: final_response, errors: _.uniq(errors) })
-                        })
-                    })
 
-                    function cloudImageUrls(validImages, directory, callback) {
-                        // console.log()
-                        console.log(validImages, "==========================================")
-                        let image = validImages.splice(0, 1)[0];
-                        console.log(image, "oppppppppp")
-                        // finalImageUrls.push(image)
-                        let params = {
-                            url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
-                            wait: true,
-                            lossy: true
-                        };
-                        kraken.url(params, function(status) {
-                            if (status.success) {
-                                console.log("Success. Optimized image URL: ", status.kraked_url);
-                                cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                    if (result) {
-                                        finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
-                                        db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
-                                            console.log(updatedImages)
-                                        })
-                                        if (validImages.length) {
-                                            cloudImageUrls(validImages, directory, callback)
-                                        } else {
-                                            callback(finalImageUrls)
-                                        }
-                                    }
-                                    //     //     rmdir(myDir + '/' + directory, function(error, data) {
-                                    //     //         console.log(err)
-                                    //     //     });
-                                    // }
-                                });
-                            } else {
-                                console.log("Fail. Error message: ", status.message);
-                            }
-                        });
-
-                    }
+                        }
 
                 })
             }
