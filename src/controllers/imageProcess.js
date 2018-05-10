@@ -23,7 +23,7 @@ export class UserController extends BaseAPIController {
         let errors = []
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
-            if (files && files.file.type != 'application/zip') {
+            if (files.file && files.file.type != 'application/zip') {
                 res.status(400).json({ error: 1, message: "please upload zip file" })
             } else {
                 fs.readFile(files.file.path, function(err, data) {
