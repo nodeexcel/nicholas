@@ -18,10 +18,10 @@ if (process.env.ENV == "dev") {
         "bodyLimit": "100kb",
         "corsHeaders": ["Link"],
         "db": {
-            "host": "127.0.0.1",
+            "host": "dev-instance.cs26dooygdod.us-east-2.rds.amazonaws.com",
             "name": "nicholas",
-            "password": "java@123",
-            "username": "root"
+            "password": "java1234",
+            "username": "dev"
         }
     }
 }
