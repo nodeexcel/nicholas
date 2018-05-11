@@ -40,13 +40,10 @@ export class UserController extends BaseAPIController {
                         let productIDS = []
                         zipEntries.forEach(function(zipEntry, key) {
                             let imageFlag = false;
-
-                            // console.log(zipEntry.toString('utf8'), "entries", key)
                             if (!zipEntry.isDirectory) {
                                 if (zipEntry.name) {
                                     let productID = zipEntry.name.split(".");
                                     productIDS.push({ Pid: productID[0], entry: zipEntry.entryName })
-                                    // console.log(productIDS, key)
                                 }
                             } else {
                                 directory = zipEntry.entryName
@@ -80,7 +77,6 @@ export class UserController extends BaseAPIController {
 
                                 if (validImages.length) {
                                     let image = validImages.splice(0, 1)[0];
-                                    // finalImageUrls.push(image)
                                     let params = {
                                         url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
                                         wait: true,
