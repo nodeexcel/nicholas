@@ -108,7 +108,7 @@ export class UserController extends BaseAPIController {
         form.parse(req, function(err, fields, files) {
             if (files.file) {
                 if (files.file['name'].substr(files.file['name'].lastIndexOf('.') + 1).toLowerCase() != 'mp4') {
-                    res.status(400).json({ error: 1, message: "please upload csv file" })
+                    res.status(400).json({ error: 1, message: "please upload mp4 file" })
                 } else {
                     fs.readFile(files.file.path, function(err, data) {
                         let myDir = __dirname + "/files";
