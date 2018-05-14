@@ -101,6 +101,38 @@ export class UserController extends BaseAPIController {
             }
         })
     }
+
+
+    uploadMp4 = (req, res, next) => {
+        let form = new formidable.IncomingForm();
+        form.parse(req, function(err, fields, files) {
+            if (files.file) {
+                if (files.file['name'].substr(files.file['name'].lastIndexOf('.') + 1).toLowerCase() != 'mp4') {
+                    res.status(400).json({ error: 1, message: "please upload csv file" })
+                } else {
+                    fs.readFile(files.file.path, function(err, data) {
+                        let myDir = __dirname + "/files";
+                        if (!fs.existsSync(myDir)) {
+                            fs.mkdirSync(myDir);
+                        }
+                        fs.writeFile(myDir + `/${files.file.name}`, data, function(err, resp) {
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                let mp4Url = `http://${req.hostname}:5001/controllers/files/${image.entry}`;
+                                console.log("Successfully Written to File.");
+                                cloudinary.v2.uploader.upload(mp4Url, function(result) {
+                                    console.log(result, "ooooooooooooooooooo")
+                                })
+                            }
+                        });
+
+                    })
+                }
+            }
+        })
+    }
+
 }
 
 const controller = new UserController();

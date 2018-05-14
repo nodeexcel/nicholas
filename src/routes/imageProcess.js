@@ -6,5 +6,7 @@ export default (app) => {
 
     app.route("/imageProcess/uploadImage").post(imageProcess.uploadImage);
 
+    app.route("/imageProcess/uploadMp4").post(imageProcess.uploadMp4);
+
     return app;
 };
