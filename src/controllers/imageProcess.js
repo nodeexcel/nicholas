@@ -71,7 +71,7 @@ export class UserController extends BaseAPIController {
                                     let image = validImages.splice(0, 1)[0];
                                     let imageUrl = `http://${req.hostname}:5001/controllers/files/${image.entry}`;
                                     cloudinary.uploader.upload(imageUrl, function(err, result) {
-                                        console.log(err, result.url)
+                                        console.log(err, result)
                                         if (result) {
                                             finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
                                             db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
