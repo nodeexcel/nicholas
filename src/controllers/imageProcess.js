@@ -106,12 +106,10 @@ export class UserController extends BaseAPIController {
     uploadMp4 = (req, res, next) => {
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
-            console.log(err, fields, files, "filesssssssssssssss")
             if (files.file) {
                 if (files.file['name'].substr(files.file['name'].lastIndexOf('.') + 1).toLowerCase() != 'mp4') {
                     res.status(400).json({ error: 1, message: "please upload csv file" })
                 } else {
-                    console.log("==========================================================")
                     fs.readFile(files.file.path, function(err, data) {
                         console.log(data, "dataaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         let myDir = __dirname + "/files";
@@ -122,9 +120,10 @@ export class UserController extends BaseAPIController {
                             if (err) {
                                 console.log(err)
                             } else {
+                                console.log(myDir + '/' + files.file.name)
                                 let mp4Url = `http://${req.hostname}:5001/controllers/files/${files.file.name}`;
                                 console.log("Successfully Written to File.");
-                                cloudinary.v2.uploader.upload(mp4Url, function(result) {
+                                cloudinary.v2.uploader.upload(mp4Url, { resource_type: "video" }, function(result) {
                                     console.log(result, "ooooooooooooooooooo")
                                 })
                             }
