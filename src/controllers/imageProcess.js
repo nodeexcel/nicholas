@@ -111,7 +111,6 @@ export class UserController extends BaseAPIController {
                     res.status(400).json({ error: 1, message: "please upload csv file" })
                 } else {
                     fs.readFile(files.file.path, function(err, data) {
-                        console.log(data, "dataaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         let myDir = __dirname + "/files";
                         if (!fs.existsSync(myDir)) {
                             fs.mkdirSync(myDir);
@@ -125,7 +124,13 @@ export class UserController extends BaseAPIController {
                                     if (err) {
                                         res.status(400).json({ error: 1, data: err })
                                     } else {
-                                        res.json({ status: 1, data: result })
+                                        console.log(result.url)
+                                        let resultData = {
+                                            "url": result.url
+                                        }
+                                        db.mp4Files.create(resultData).then((final_resp) => {
+                                            res.json({ status: 1, data: final_resp })
+                                        }, (err) => this.handleErrorResponse(res, err))
                                     }
                                 });
                             }
@@ -135,6 +140,12 @@ export class UserController extends BaseAPIController {
                 }
             }
         })
+    }
+
+    getMp4 = (req, res, next) => {
+        db.mp4Files.findAll({}).then((data) => {
+            res.json({ status: 1, data: data })
+        }, (err) => this.handleErrorResponse(res, err))
     }
 
 }
