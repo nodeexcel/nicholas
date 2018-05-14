@@ -104,9 +104,9 @@ export class UserController extends BaseAPIController {
 
 
     uploadMp4 = (req, res, next) => {
-        console.log("=====================================0ppppppppppp")
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
+            console.log(err, fields, files, "filesssssssssssssss")
             if (files.file) {
                 if (files.file['name'].substr(files.file['name'].lastIndexOf('.') + 1).toLowerCase() != 'mp4') {
                     res.status(400).json({ error: 1, message: "please upload csv file" })
