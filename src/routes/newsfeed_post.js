@@ -10,7 +10,7 @@ export default (app) => {
 
     app.route("/newsfeed_post/updateNewsfeedPost").put(newsfeed_post.updateNewsfeedPost);
 
-    app.route("/newsfeed_post/deleteNewsfeedPost").delete(newsfeed_post.deleteNewsfeedPost);
+    app.route("/newsfeed_post/deleteNewsfeedPost/:id").delete(newsfeed_post.deleteNewsfeedPost);
 
     return app;
 };
