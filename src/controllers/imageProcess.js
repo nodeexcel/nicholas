@@ -126,7 +126,7 @@ export class UserController extends BaseAPIController {
                                     } else {
                                         console.log(result.url)
                                         let resultData = {
-                                            "url": result.url
+                                            "cloudUrl": result.url
                                         }
                                         db.mp4Files.create(resultData).then((final_resp) => {
                                             res.json({ status: 1, data: final_resp })
