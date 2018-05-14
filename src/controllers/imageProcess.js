@@ -104,6 +104,7 @@ export class UserController extends BaseAPIController {
 
 
     uploadMp4 = (req, res, next) => {
+        console.log("=====================================0ppppppppppp")
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
             if (files.file) {
