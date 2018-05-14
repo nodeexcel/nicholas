@@ -111,6 +111,7 @@ export class UserController extends BaseAPIController {
                     res.status(400).json({ error: 1, message: "please upload csv file" })
                 } else {
                     fs.readFile(files.file.path, function(err, data) {
+                        console.log(data, "dataaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         let myDir = __dirname + "/files";
                         if (!fs.existsSync(myDir)) {
                             fs.mkdirSync(myDir);
