@@ -120,12 +120,10 @@ export class UserController extends BaseAPIController {
                             if (err) {
                                 console.log(err)
                             } else {
-                                console.log(myDir + '/' + files.file.name)
                                 let mp4Url = `http://${req.hostname}:5001/controllers/files/${files.file.name}`;
-                                console.log("Successfully Written to File.");
-                                cloudinary.v2.uploader.upload(mp4Url, { resource_type: "video" }, function(result) {
-                                    console.log(result, "ooooooooooooooooooo")
-                                })
+                                cloudinary.v2.uploader.upload_large(mp4Url, { resource_type: "video" }, function(error, result) {
+                                    console.log(err, result, "err  result");
+                                });
                             }
                         });
 
