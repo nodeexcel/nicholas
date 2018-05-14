@@ -3,7 +3,6 @@ import db from '../db.js'
 import AdmZip from 'adm-zip';
 import fs from "fs";
 import formidable from "formidable";
-import Kraken from "kraken";
 import cloudinary from 'cloudinary';
 import rmdir from 'rimraf';
 import _ from "lodash";
@@ -16,10 +15,6 @@ cloudinary.config({
 export class UserController extends BaseAPIController {
     uploadImage = (req, res, next) => {
         let finalImageUrls = [];
-        let kraken = new Kraken({
-            "api_key": "ba861f2d7b7e398cefeb106ecdce58d7",
-            "api_secret": "1a61f223803ed78b6cdd429511215aa3a6e82607"
-        });
         let errors = []
         let form = new formidable.IncomingForm();
         form.parse(req, function(err, fields, files) {
@@ -71,40 +66,27 @@ export class UserController extends BaseAPIController {
                                 res.json({ status: 1, data: final_response, errors: productIDS })
                             })
 
-
                             function cloudImageUrls(validImages, directory, callback) {
-                                // console.log()
-
                                 if (validImages.length) {
                                     let image = validImages.splice(0, 1)[0];
-                                    let params = {
-                                        url: `http://${req.hostname}:5001/controllers/files/${image.entry}`,
-                                        wait: true,
-                                        lossy: true
-                                    };
-                                    kraken.url(params, function(status) {
-                                        if (status.success) {
-                                            console.log("Success. Optimized image URL: ", status.kraked_url);
-                                            cloudinary.uploader.upload(status.kraked_url, function(result) {
-                                                if (result) {
-                                                    finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
-                                                    db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
-                                                        console.log(updatedImages)
-                                                    })
-                                                    if (validImages.length) {
-                                                        cloudImageUrls(validImages, directory, callback)
-                                                    } else {
-                                                        callback(finalImageUrls)
-                                                    }
-                                                }
-                                                //     //     rmdir(myDir + '/' + directory, function(error, data) {
-                                                //     //         console.log(err)
-                                                //     //     });
-                                                // }
-                                            });
-                                        } else {
-                                            console.log("Fail. Error message: ", status.message);
+                                    let imageUrl = `http://${req.hostname}:5001/controllers/files/${image.entry}`;
+                                    cloudinary.uploader.upload(imageUrl, function(err, result) {
+                                        console.log(err, result.url)
+                                        if (result) {
+                                            finalImageUrls.push({ imageUrl: result.url, ProductId: image.Pid })
+                                            db.products.update({ ImageFullsizeURL: result.url }, { where: { productID: image.Pid } }).then((updatedImages) => {
+                                                console.log(updatedImages)
+                                            })
+                                            if (validImages.length) {
+                                                cloudImageUrls(validImages, directory, callback)
+                                            } else {
+                                                callback(finalImageUrls)
+                                            }
                                         }
+                                        //     //     rmdir(myDir + '/' + directory, function(error, data) {
+                                        //     //         console.log(err)
+                                        //     //     });
+                                        // }
                                     });
                                 } else {
                                     callback(finalImageUrls)
@@ -116,11 +98,9 @@ export class UserController extends BaseAPIController {
                 }
             } else {
                 res.status(400).json({ error: 1, message: "file not recieved" })
-
             }
         })
     }
-
 }
 
 const controller = new UserController();
