@@ -121,8 +121,12 @@ export class UserController extends BaseAPIController {
                                 console.log(err)
                             } else {
                                 let mp4Url = `http://${req.hostname}:5001/controllers/files/${files.file.name}`;
-                                cloudinary.v2.uploader.upload_large(mp4Url, { resource_type: "video" }, function(error, result) {
-                                    console.log(err, result, "err  result");
+                                cloudinary.v2.uploader.upload(mp4Url, { resource_type: "video" }, function(error, result) {
+                                    if (err) {
+                                        res.status(400).json({ error: 1, data: err })
+                                    } else {
+                                        res.json({ status: 1, data: result })
+                                    }
                                 });
                             }
                         });
