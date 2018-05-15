@@ -71,6 +71,12 @@ export class UserController extends BaseAPIController {
         }, (err) => this.handleErrorResponse(res, err))
     }
 
+    searchProducts = (req, res, next) => {
+        db.products.findAll({ where: { productID: { $like: '%' + req.params.productID + '%' } } }).then((data) => {
+            res.json({ status: 1, data: data })
+        }, (err) => this.handleErrorResponse(res, err))
+    }
+
 }
 
 const controller = new UserController();
