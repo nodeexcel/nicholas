@@ -6,9 +6,11 @@ export default (app) => {
 
     app.route("/newsfeed_post/createNewsfeedPost").post(newsfeed_post.createNewsfeedPost);
 
-    app.route("/newsfeed_post/updateNewsfeedPost").post(newsfeed_post.updateNewsfeedPost);
+    app.route("/newsfeed_post/getNewsfeedPost").get(newsfeed_post.getNewsfeedPost);
 
-    app.route("/newsfeed_post/deleteNewsfeedPost").post(newsfeed_post.deleteNewsfeedPost);
+    app.route("/newsfeed_post/updateNewsfeedPost").put(newsfeed_post.updateNewsfeedPost);
+
+    app.route("/newsfeed_post/deleteNewsfeedPost/:id").delete(newsfeed_post.deleteNewsfeedPost);
 
     return app;
 };

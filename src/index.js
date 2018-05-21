@@ -11,18 +11,25 @@ import path from "path";
 
 const app = express();
 app.server = http.createServer(app);
-
-app.use(cors());
+app.set('view engine', 'jade');
 app.use(cors({
     exposedHeaders: environment.config.corsHeaders
 }));
+var corsOptions = {
+    origin: true,
+    methods: ['GET, POST, OPTIONS, PUT, PATCH, DELETE'],
+    allowedHeaders: ['Origin', 'Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Link'],
+    credentials: true
+};
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json({
     limit: environment.config.bodyLimit
 }));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
+app.use(express.static(__dirname))
 app.use(expressValidator());
 
 const initRoutes = (app) => {

@@ -1,5 +1,5 @@
 const categories = (validate, body, validationResult) => {
-    return new Promise((resolve, reject) categoryName => {
+    return new Promise((resolve, reject) => {
         validate("categoryName", "categoryName Required field!!").notEmpty();
         validate("parrentID", "parrentID Required field!!").notEmpty();
 
