@@ -60,7 +60,6 @@ export class UserController extends BaseAPIController {
                                     return (index.Pid == val.ProductID)
                                 })
                             })
-                            console.log(validImages, "errorsssssssssssssssss", productIDS)
 
                             cloudImageUrls(validImages, directory, function(final_response) {
                                 res.json({ status: 1, data: final_response, errors: productIDS })
